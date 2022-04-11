@@ -1,0 +1,161 @@
+---
+title: "Exploration of the Text Data"
+output: html_notebook
+---
+
+# Introduction
+
+This report shows frequency analyses for 2-, 3-, and 4-grams for the three datasets, as well as for a combined dataset. I've omitted the R code from the output since there is a lot of it.
+
+I've used the ngram package for processing the text and getting the n-grams.
+
+# The Files
+
+Here's just a summary of the files:
+```{r,echo=FALSE, warnings=FALSE, include=FALSE}
+twitter <- readLines("../en_US/en_US.twitter.txt")
+blogs <- readLines("../en_US/en_US.blogs.txt")
+news <- readLines("../en_US/en_US.news.txt")
+```
+* Blogs has `r length(blogs)` lines and `r wordcount(blogs)` words.
+* Twitter has `r length(twitter)` lines and `r wordcount(twitter)` words.
+* News has `r length(news)` lines and `r wordcount(twitter)` words.
+
+# Reading and Processing
+
+I'll read in proportions of each file to get roughly the same amount of data from each source. The number of lines I've used are as follows:
+
+* Blogs: 14000
+* Twitter: 30000
+* News: 16000
+
+After reading the files I've removed punctuations and lower-cased them.
+
+```{r warning=FALSE, include=FALSE}
+library(tidyverse)
+library(ngram)
+library(gridExtra)
+
+twitter <- readLines("../en_US/en_US.twitter.txt", n=30000)
+blogs <- readLines("../en_US/en_US.blogs.txt", n=14000)
+news <- readLines("../en_US/en_US.news.txt", n=16000)
+
+blogs_all <- concatenate(blogs)
+blogs_procd <- preprocess(blogs_all, case="lower", remove.punct=T)
+blogs_ng2 <- ngram(blogs_procd, n=2)
+blogs_ng3 <- ngram(blogs_procd, n=3)
+blogs_ng4 <- ngram(blogs_procd, n=4)
+
+twitter_all <- concatenate(twitter)
+twitter_procd <- preprocess(twitter_all, case="lower", remove.punct=T)
+twitter_ng2 <- ngram(twitter_procd, n=2)
+twitter_ng3 <- ngram(twitter_procd, n=3)
+twitter_ng4 <- ngram(twitter_procd, n=4)
+
+news_all <- concatenate(news)
+news_procd <- preprocess(news_all, case="lower", remove.punct=T)
+news_ng2 <- ngram(news_procd, n=2)
+news_ng3 <- ngram(news_procd, n=3)
+news_ng4 <- ngram(news_procd, n=4)
+```
+
+# N-gram Plots
+
+## Blogs
+
+```{r echo=FALSE, warning=FALSE}
+tab2 <- get.phrasetable(blogs_ng2)[1:10,]
+df2 <- data.frame(n=factor(tab2$ngrams, levels=rev(tab2$ngrams)),f=tab2$freq)
+plot1 <- ggplot(df2) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab3 <- get.phrasetable(blogs_ng3)[1:10,]
+df3 <- data.frame(n=factor(tab3$ngrams, levels=rev(tab3$ngrams)),f=tab3$freq)
+plot2 <- ggplot(df3) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab4 <- get.phrasetable(blogs_ng4)[1:10,]
+df4 <- data.frame(n=factor(tab4$ngrams, levels=rev(tab4$ngrams)),f=tab4$freq)
+plot3 <- ggplot(df4) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+
+grid.arrange(plot1, plot2, plot3, ncol=3)
+```
+
+## Twitter
+
+```{r echo=FALSE, warning=FALSE}
+tab2 <- get.phrasetable(twitter_ng2)[1:10,]
+df2 <- data.frame(n=factor(tab2$ngrams, levels=rev(tab2$ngrams)),f=tab2$freq)
+plot1 <- ggplot(df2) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab3 <- get.phrasetable(twitter_ng3)[1:10,]
+df3 <- data.frame(n=factor(tab3$ngrams, levels=rev(tab3$ngrams)),f=tab3$freq)
+plot2 <- ggplot(df3) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab4 <- get.phrasetable(twitter_ng4)[1:10,]
+df4 <- data.frame(n=factor(tab4$ngrams, levels=rev(tab4$ngrams)),f=tab4$freq)
+plot3 <- ggplot(df4) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+
+grid.arrange(plot1, plot2, plot3, ncol=3)
+```
+
+## News
+
+```{r echo=FALSE, warning=FALSE}
+tab2 <- get.phrasetable(news_ng2)[1:10,]
+df2 <- data.frame(n=factor(tab2$ngrams, levels=rev(tab2$ngrams)),f=tab2$freq)
+plot1 <- ggplot(df2) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab3 <- get.phrasetable(news_ng3)[1:10,]
+df3 <- data.frame(n=factor(tab3$ngrams, levels=rev(tab3$ngrams)),f=tab3$freq)
+plot2 <- ggplot(df3) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab4 <- get.phrasetable(news_ng4)[1:10,]
+df4 <- data.frame(n=factor(tab4$ngrams, levels=rev(tab4$ngrams)),f=tab4$freq)
+plot3 <- ggplot(df4) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+
+grid.arrange(plot1, plot2, plot3, ncol=3)
+```
+
+## Combined Data
+
+```{r echo=FALSE, warning=FALSE}
+all <- concatenate(twitter, blogs, news)
+all_procd <- preprocess(all, case="lower", remove.punct=T)
+all_ng2 <- ngram(all_procd, n=2)
+all_ng3 <- ngram(all_procd, n=3)
+all_ng4 <- ngram(all_procd, n=4)
+
+tab2 <- get.phrasetable(all_ng2)[1:10,]
+df2 <- data.frame(n=factor(tab2$ngrams, levels=rev(tab2$ngrams)),f=tab2$freq)
+plot1 <- ggplot(df2) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab3 <- get.phrasetable(all_ng3)[1:10,]
+df3 <- data.frame(n=factor(tab3$ngrams, levels=rev(tab3$ngrams)),f=tab3$freq)
+plot2 <- ggplot(df3) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+tab4 <- get.phrasetable(all_ng4)[1:10,]
+df4 <- data.frame(n=factor(tab4$ngrams, levels=rev(tab4$ngrams)),f=tab4$freq)
+plot3 <- ggplot(df4) + geom_col(mapping=aes(x=n, y=f)) + coord_flip() + labs(y="Frequency")
+
+
+grid.arrange(plot1, plot2, plot3, ncol=3)
+```
+
+## Conclusions
+
+It is not surprising seeing the word "the" high on the list. We also expect the sources to be different, and especially the 4-grams confirm this, as we can even see from some of the 4-grams where they come from.
+
+# Prediction Algorithm
+
+The plan is to use the combined dataset, and then the following algorithm:
+
+Assume the input has three words, then check to see if there is a 4-gram where the three first words match. If so, use the fourth word as the prediction, and continue.
+
+If there is no 4-gram, repeat the same but look for a 3-gram.
+
+If no 3-gram, look for a 2-gram.
+
+If no 2-gram, meaning the word isn't in the model dictionary, there are multiple things that could be done. If the assignment doesn't require that we produce a prediction all the time, then we could just not predict anything in this scenario. Alternatively, we could predict a high-frequency preposition or article like "the", but even better would be to have a character-based model in this scenario. State-of-the-art transformer models like BERT for example use a form of subword encoding that is learnt from raw data.
+

@@ -1,0 +1,41 @@
+---
+title: "Predictify - Text Prediction Service PoC"
+author: "Daniel"
+date: "`r Sys.Date()`"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Overview
+
+* Predictify is a proof-of-concept text prediction service based on n-grams
+* Training and test data come from blogs, news, and tweets
+* The PoC consists of a web application that shows off the solution
+* The prediction accuracy is about 35%, but some sacrifices were made!
+
+## The concept - n-grams
+
+n-grams are a simple and easy-to-implement way to model the text prediction task. The method is based on groupings of n words, for example, a 3-gram might be [the, fast, car], and so the algorithm would be able to predict the next word to be car if it saw [the, fast]. Training is accomplished by building a data structure of those n-grams from the training data.
+
+## Algorithm
+
+The algorithm is as follows:
+
+1. Preprocess the input, lowercasing it and removing punctuation
+2. Try to predict with a 4-gram model, as this has the most context, but on the other hand is less likely to match
+3. If no match, predict with a 3-gram (trigram) model
+4. If still no match, predict with a 2-gram (bigram) model
+5. If still no match, predict nothing (represented by an empty string, "").
+
+## Evaluation and Room for Improvements
+
+The model is able to approximately predict 35% of the next words in a general context.
+
+More training data would improve the model, but performance was also important here. More diverse data sources would perhaps improve results further.
+
+State-of-the-art in NLP is however transformer-based models like BERT and derivatives, however, these require far more training data and also more computer performance for performing predictions.
